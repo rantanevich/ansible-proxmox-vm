@@ -1,0 +1,4 @@
+---
+# [602] Don't compare to empty string
+skip_list:
+  - '602'

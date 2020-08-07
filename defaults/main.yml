@@ -1,0 +1,11 @@
+---
+proxmox_host: localhost
+proxmox_user: root@pam
+proxmox_password: secret
+
+proxmox_vm_default:
+  node: pve
+  sockets: 1
+  cores: 1
+  memory: 512
+  autostart: no
