@@ -9,7 +9,7 @@
     newid: "{{ item.value.vmid }}"
     name: "{{ item.key }}"
     timeout: 300
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
 
 - name: update virtual machines parameters
   proxmox_kvm:
@@ -23,14 +23,14 @@
     memory: "{{ item.value.memory | default(proxmox_vm_default.memory) }}"
     onboot: "{{ item.value.onboot | default(proxmox_vm_default.onboot) }}"
     update: yes
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
   changed_when: no
 
 - name: copy ssh key to temporary file
   copy:
     content: "{{ item.value.ssh_key }}"
     dest: "/tmp/{{ item.value.vmid }}.pub"
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
   when:
     - item.value.vmid
     - item.value.ssh_key is defined
@@ -49,12 +49,12 @@
     node: "{{ item.value.node | default(proxmox_vm_default.node) }}"
     vmid: "{{ item.value.vmid }}"
     state: started
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
 
 - name: wait for virtual machines to turn on
   wait_for:
     port: 22
     host: "{{ item.value.ip.split('/') | first }}"
     delay: 10
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
   when: item.value.ip is defined

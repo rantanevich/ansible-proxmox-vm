@@ -5,7 +5,7 @@
     set {{ item.value.vmid }}
     --ciuser {{ item.value.user }}
   changed_when: no
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
   when:
     - item.value.vmid is defined
     - item.value.user is defined
@@ -17,7 +17,7 @@
     set {{ item.value.vmid }}
     --cipassword {{ item.value.password }}
   changed_when: no
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
   when:
     - item.value.vmid is defined
     - item.value.password is defined
@@ -29,7 +29,7 @@
     set {{ item.value.vmid }}
     --nameserver {{ item.value.dns | join(',') }}
   changed_when: no
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
   when:
     - item.value.vmid is defined
     - item.value.dns is defined
@@ -41,7 +41,7 @@
     set {{ item.value.vmid }}
     --searchdomain {{ item.value.domain }}
   changed_when: no
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
   when:
     - item.value.vmid is defined
     - item.value.domain is defined
@@ -53,7 +53,7 @@
     set {{ item.value.vmid }}
     --ipconfig0 ip={{ item.value.ip }},gw={{ item.value.gateway }}
   changed_when: no
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
   when:
     - item.value.vmid is defined
     - item.value.ip is defined
@@ -65,7 +65,7 @@
     set {{ item.value.vmid }}
     --sshkeys=/tmp/{{ item.value.vmid }}.pub
   changed_when: no
-  loop: "{{ lookup('dict', proxmox_vms) }}"
+  loop: "{{ query('dict', proxmox_vms) }}"
   when:
     - item.value.vmid
     - item.value.ssh_key is defined
