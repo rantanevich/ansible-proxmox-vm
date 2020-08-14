@@ -144,7 +144,7 @@ Example Playbook
 
       roles:
          - geerlingguy.pip
-         - rantanevich.proxmox-vm
+         - rantanevich.proxmox_vm
 
 License
 -------
