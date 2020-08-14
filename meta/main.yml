@@ -22,10 +22,4 @@ galaxy_info:
     - proxmox
     - provision
 
-dependencies:
-  - role: geerlingguy.pip
-    pip_install_packages:
-      - name: proxmoxer
-        version: 1.1.1
-      - name: requests
-        version: 2.22.0
+dependencies: []

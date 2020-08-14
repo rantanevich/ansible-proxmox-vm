@@ -1,31 +1,150 @@
 Ansible Role: Proxmox VM
 =========
 
-The role creates VMs using template created from cloud-init image.
+The role creates VMs using a template created from cloud-init image.
 
 Requirements
 ------------
 
-- proxmox server (running)
+The role requires `running proxmox server` with installed `proxmoxer` (pip package).
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Available variables are listed below along with default values (`defaults/main.yml`):
+
+    proxmox_host: proxmox.example.com
+    proxmox_user: root@pam
+    proxmox_password: secret
+
+These are using to log into the Proxmox API.
+
+    proxmox_vms:
+      app-1.example.com:
+        node: pve
+        vmid: 100
+        sockets: 1
+        cores: 4
+        memory: 4096
+        onboot: yes
+        # cloud-init settings
+        user: ansible
+        password: <plaintext>
+        ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}
+        dns:
+          - 1.1.1.1
+          - 8.8.8.8
+        domain: example.com
+        ip: 192.168.0.1/24
+        gateway: 192.168.0.254
+
+All available setting of VM are listed above.
+
+`app-1.example.com`
+
+That specifies the VM name which only using on web interface.
+
+`node: pve`
+
+Proxmox VE node where the new VM will be created. (default: yes)
+
+`vmid: 100`
+
+Specifies the VM ID.
+
+`sockets: 1`
+
+Sets the number of CPU sockets. (default: 1)
+
+`cores: 4`
+
+Specify number of cores per socket. (default: 2)
+
+`memory: 4096`
+
+Memory size in MB for instance. (default: 1024)
+
+`onboot: yes`
+
+Specifies whether a VM will be started during system bootup. (default: yes)
+
+`user: ansible`
+
+User name to change ssh keys and password for instead of the image’s configured default user.
+
+`password: secret`
+
+Password to assign the user.
+
+`ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}`
+
+Setup public SSH keys (one key, OpenSSH format).
+
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+
+Sets DNS server IP address for a VM.
+
+`domain: example.com`
+
+Sets DNS search domains for a VM.
+
+`ip: 192.168.0.1/24`
+
+Specify IP address for net0 interface. IP addresses use CIDR notation.
+
+`gateway: 192.168.0.254`
+
+Specify gateway for net0 interface.
+
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+This role need to installed proxmoxer (pip package) on proxmox server. I usually use `geerlingguy.pip` role for that.
+
+    roles:
+      - geerlingguy.pip
+        pip_install_packages:
+          - name: proxmoxer
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+    - hosts: proxmox
+      vars:
+        pip_install_packages:
+          - name: proxmoxer
+        proxmox_api_host: <dns or ip address of proxmox server>
+        proxmox_api_user: root@pam 
+        proxmox_api_password: <plaintext password>
+        proxmox_vms:
+          # all options
+          app-1.example.com:
+            node: pve
+            vmid: 100
+            sockets: 1
+            cores: 4
+            memory: 4096
+            onboot: yes
+            # cloud-init settings
+            user: ansible
+            password: <plaintext>
+            ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}
+            dns:
+              - 1.1.1.1
+              - 8.8.8.8
+            domain: example.com
+            ip: 192.168.0.1/24
+            gateway: 192.168.0.254
+          # minimum options
+          app-2.example.com:
+            vmid: 101
 
-    - hosts: servers
       roles:
-         - { role: username.rolename, x: 42 }
+         - geerlingguy.pip
+         - rantanevich.proxmox-vm
 
 License
 -------

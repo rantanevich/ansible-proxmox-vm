@@ -6,6 +6,6 @@ proxmox_password: secret
 proxmox_vm_default:
   node: pve
   sockets: 1
-  cores: 1
-  memory: 512
-  autostart: no
+  cores: 2
+  memory: 1024
+  onboot: yes

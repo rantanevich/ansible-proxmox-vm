@@ -1,9 +1,9 @@
 ---
 - name: create virtual machines
   proxmox_kvm:
-    api_host: "{{ proxmox_host }}"
-    api_user: "{{ proxmox_user }}"
-    api_password: "{{ proxmox_password }}"
+    api_host: "{{ proxmox_api_host }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_password }}"
     node: "{{ item.value.node }}"
     clone: "{{ item.value.template }}"
     newid: "{{ item.value.vmid }}"
@@ -13,15 +13,15 @@
 
 - name: update virtual machines parameters
   proxmox_kvm:
-    api_host: "{{ proxmox_host }}"
-    api_user: "{{ proxmox_user }}"
-    api_password: "{{ proxmox_password }}"
+    api_host: "{{ proxmox_api_host }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_password }}"
     node: "{{ item.value.node | default(proxmox_vm_default.node) }}"
     vmid: "{{ item.value.vmid }}"
     sockets: "{{ item.value.sockets | default(proxmox_vm_default.sockets) }}"
     cores: "{{ item.value.cores | default(proxmox_vm_default.cores) }}"
     memory: "{{ item.value.memory | default(proxmox_vm_default.memory) }}"
-    autostart: "{{ item.value.autostart | default(proxmox_vm_default.autostart) }}"
+    onboot: "{{ item.value.onboot | default(proxmox_vm_default.onboot) }}"
     update: yes
   loop: "{{ lookup('dict', proxmox_vms) }}"
   changed_when: no
@@ -43,9 +43,9 @@
 
 - name: start virtual machines
   proxmox_kvm:
-    api_host: "{{ proxmox_host }}"
-    api_user: "{{ proxmox_user }}"
-    api_password: "{{ proxmox_password }}"
+    api_host: "{{ proxmox_api_host }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_password }}"
     node: "{{ item.value.node | default(proxmox_vm_default.node) }}"
     vmid: "{{ item.value.vmid }}"
     state: started
