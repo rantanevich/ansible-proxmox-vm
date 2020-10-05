@@ -76,7 +76,7 @@ User name to change ssh keys and password for instead of the image’s configure
 
 Password to assign the user.
 
-`ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}`
+`ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"`
 
 Setup public SSH keys (one key, OpenSSH format).
 
@@ -131,7 +131,7 @@ Example Playbook
             # cloud-init settings
             user: ansible
             password: <plaintext>
-            ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}
+            ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
             dns:
               - 1.1.1.1
               - 8.8.8.8
