@@ -11,26 +11,35 @@ The role requires `running proxmox server` with installed `proxmoxer` (pip packa
 Role Variables
 --------------
 
-Available variables are listed below along with default values (`defaults/main.yml`):
+Variables for logging into Proxmox server:
 
-    proxmox_host: proxmox.example.com
-    proxmox_user: root@pam
-    proxmox_password: secret
+| Variable             | Default   | Comments                                          |
+|----------------------|-----------|---------------------------------------------------|
+| proxmox_api_host     | localhost | Specify the target host of the Proxmox VE cluster | 
+| proxmox_api_user     | root@pam  | Specify the user to authenticate with.            |
+| proxmox_api_password | secure    | Specify the password to authenticate with.        |
 
-These are using to log into the Proxmox API.
+In example below listed all variables for setting VMs:
 
     proxmox_vms:
-      app-1.example.com:
+      - name: app-1.example.com
         node: pve
         vmid: 100
         sockets: 1
         cores: 4
         memory: 4096
         onboot: yes
+        volumes:
+          - storage: local-lvm
+            format: raw
+            size: 100G
+          - storage: local-lvm
+            format: raw
+            size: 1000G
         # cloud-init settings
         user: ansible
         password: <plaintext>
-        ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}
+        ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
         dns:
           - 1.1.1.1
           - 8.8.8.8
@@ -38,65 +47,37 @@ These are using to log into the Proxmox API.
         ip: 192.168.0.1/24
         gateway: 192.168.0.254
 
-All available setting of VM are listed above.
+More detailed:
 
-`app-1.example.com`
+| Variable | Required  | Default | Comments                                                 |
+|----------|-----------|---------|----------------------------------------------------------|
+| name     | yes       | none    | Specifies the name of the VM                             |
+| node     | yes       | pve     | Specifies Proxmox node, where the new VM will be created |
+| vmid     | yes       | none    | Specifies the VM ID. It must be unique                   |
+| sockets  | no        | 1       | Sets the number of CPU sockets (1-N)                     |
+| cores    | no        | 2       | Specifies number of cores per socket                     |
+| memory   | no        | 1024    | Specifies memory size in MB for instance                 |
+| onboot   | no        | yes     | Specifies if a VM will be started during system bootup   |
 
-That specifies the VM name which only using on web interface.
+Volumes are created and attached to buses in the same order (start from 1).
 
-`node: pve`
+| Variable | Required  | Default              | Comments                                                                                     |
+|----------|-----------|----------------------|----------------------------------------------------------------------------------------------|
+| storage  | yes       | none                 | The storage identifier.                                                                      |
+| size     | yes       | none                 | Size in kilobyte (1024 bytes). Optional suffixes M (megabyte, 1024K) and G (gigabyte, 1024M) |
+| format   | no        | specified by storage | Format of disk image                                                                         |
 
-Proxmox VE node where the new VM will be created. (default: yes)
+Cloud Init settings:
 
-`vmid: 100`
-
-Specifies the VM ID.
-
-`sockets: 1`
-
-Sets the number of CPU sockets. (default: 1)
-
-`cores: 4`
-
-Specify number of cores per socket. (default: 2)
-
-`memory: 4096`
-
-Memory size in MB for instance. (default: 1024)
-
-`onboot: yes`
-
-Specifies whether a VM will be started during system bootup. (default: yes)
-
-`user: ansible`
-
-User name to change ssh keys and password for instead of the image’s configured default user.
-
-`password: secret`
-
-Password to assign the user.
-
-`ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"`
-
-Setup public SSH keys (one key, OpenSSH format).
-
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
-
-Sets DNS server IP address for a VM.
-
-`domain: example.com`
-
-Sets DNS search domains for a VM.
-
-`ip: 192.168.0.1/24`
-
-Specify IP address for net0 interface. IP addresses use CIDR notation.
-
-`gateway: 192.168.0.254`
-
-Specify gateway for net0 interface.
+| Variable | Required  | Example                             | Comments                                                 |
+|----------|-----------|-------------------------------------|----------------------------------------------------------|
+| user     | no        | ansible                             | User will be created instead of the image’s default user |
+| password | no        | qwerty                              | Password to assign the user                              |
+| ssh_key  | no        | lookup('file', '~/.ssh/id_rsa.pub') | Setup public SSH keys (OpenSSH format)                   |
+| dns      | no        | ['1.1.1.1', '8.8.8.8']              | Sets DNS server IP address                               |
+| domain   | no        | example.com                         | Sets DNS search domains                                  |
+| ip       | no        | 192.168.0.1/24                      | Specify IP address for the corresponding interface       |
+| gateway  | no        | 192.168.0.254                       | Specify gateways for the corresponding interface         |
 
 
 Dependencies
@@ -128,7 +109,13 @@ Example Playbook
             cores: 4
             memory: 4096
             onboot: yes
-            # cloud-init settings
+            volumes:
+              - storage: local-lvm
+                format: raw
+                size: 10G
+              - storage: remote
+                format: qcow2
+                size: 50G
             user: ansible
             password: <plaintext>
             ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"

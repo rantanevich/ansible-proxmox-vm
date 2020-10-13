@@ -2,70 +2,110 @@
 - name: configures default user (cloud-init)
   command: >
     /usr/sbin/qm
-    set {{ item.value.vmid }}
-    --ciuser {{ item.value.user }}
+    set {{ item.vmid }}
+    --ciuser {{ item.user }}
   changed_when: no
-  loop: "{{ query('dict', proxmox_vms) }}"
+  loop: "{{ proxmox_vms }}"
   when:
-    - item.value.vmid is defined
-    - item.value.user is defined
-    - item.value.user != ''
+    - item.vmid is defined
+    - item.user is defined
+    - item.user != ''
 
-- name: configure password for default user  (cloud-init)
+- name: configure password for default user (cloud-init)
   command: >
     /usr/sbin/qm
-    set {{ item.value.vmid }}
-    --cipassword {{ item.value.password }}
+    set {{ item.vmid }}
+    --cipassword {{ item.password }}
   changed_when: no
-  loop: "{{ query('dict', proxmox_vms) }}"
+  loop: "{{ proxmox_vms }}"
   when:
-    - item.value.vmid is defined
-    - item.value.password is defined
-    - item.value.password != ''
+    - item.vmid is defined
+    - item.password is defined
+    - item.password != ''
 
 - name: configure dns (cloud-init)
   command: >
     /usr/sbin/qm
-    set {{ item.value.vmid }}
-    --nameserver {{ item.value.dns | join(',') }}
+    set {{ item.vmid }}
+    --nameserver {{ item.dns | join(',') }}
   changed_when: no
-  loop: "{{ query('dict', proxmox_vms) }}"
+  loop: "{{ proxmox_vms }}"
   when:
-    - item.value.vmid is defined
-    - item.value.dns is defined
-    - item.value.dns | length > 0
+    - item.vmid is defined
+    - item.dns is defined
+    - item.dns | length > 0
 
 - name: configure searchdomain (cloud-init)
   command: >
     /usr/sbin/qm
-    set {{ item.value.vmid }}
-    --searchdomain {{ item.value.domain }}
+    set {{ item.vmid }}
+    --searchdomain {{ item.domain }}
   changed_when: no
-  loop: "{{ query('dict', proxmox_vms) }}"
+  loop: "{{ proxmox_vms }}"
   when:
-    - item.value.vmid is defined
-    - item.value.domain is defined
-    - item.value.domain != ''
+    - item.vmid is defined
+    - item.domain is defined
+    - item.domain != ''
 
 - name: configure network for net0 (cloud-init)
   command: >
     /usr/sbin/qm
-    set {{ item.value.vmid }}
-    --ipconfig0 ip={{ item.value.ip }},gw={{ item.value.gateway }}
+    set {{ item.vmid }}
+    --ipconfig0 ip={{ item.ip }},gw={{ item.gateway }}
   changed_when: no
-  loop: "{{ query('dict', proxmox_vms) }}"
+  loop: "{{ proxmox_vms }}"
   when:
-    - item.value.vmid is defined
-    - item.value.ip is defined
-    - item.value.gateway is defined
+    - item.vmid is defined
+    - item.ip is defined
+    - item.gateway is defined
 
 - name: configure ssh key for default user (cloud-init)
   command: >
     /usr/sbin/qm
-    set {{ item.value.vmid }}
-    --sshkeys=/tmp/{{ item.value.vmid }}.pub
+    set {{ item.vmid }}
+    --sshkeys=/tmp/{{ item.vmid }}.pub
   changed_when: no
-  loop: "{{ query('dict', proxmox_vms) }}"
+  loop: "{{ proxmox_vms }}"
   when:
-    - item.value.vmid
-    - item.value.ssh_key is defined
+    - item.vmid
+    - item.ssh_key is defined
+
+# Jinja2 loop is using here for next reasons:
+# 1. I need to a new sequence of numbers from 1 for each VM
+#   1.1 Proxmox limits count of SCSI buses (max 30).
+#   1.2 If you don't add new VM in the end, Proxmox will try to attach existing disk to other bus.
+# 2. If I use a subelements module with loop I get a shared sequence of numbers for entire loop.
+- name: create additional volumes
+  shell: >
+    {% for volume in item.volumes %}
+    /usr/sbin/pvesm
+    alloc {{ volume.storage }} {{ item.vmid }}
+    'vm-{{ item.vmid }}-disk-{{ loop.index }}'
+    {{ volume.size }}
+    {% if volume.format is defined %}--format {{ volume.format }}{% endif %}
+    ;{% endfor %}
+  loop: "{{ proxmox_vms }}"
+  register: additional_volumes
+  changed_when: no
+  failed_when:
+    - additional_volumes.rc != 0
+    - "'already exists' not in additional_volumes.stderr"
+  when:
+    - item.vmid is defined
+    - item.volumes is defined
+    - item.volumes | length > 0
+
+- name: configure additional volumes
+  shell: >
+    {% for volume in item.volumes %}
+    /usr/sbin/qm
+    set {{ item.vmid }}
+    --scsi{{ loop.index }}
+    {{ volume.storage }}:vm-{{ item.vmid }}-disk-{{ loop.index }}
+    ;{% endfor %}
+  changed_when: no
+  loop: "{{ proxmox_vms }}"
+  when:
+    - item.vmid is defined
+    - item.volumes is defined
+    - item.volumes | length > 0

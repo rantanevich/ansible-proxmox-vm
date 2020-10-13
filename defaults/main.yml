@@ -1,7 +1,7 @@
 ---
-proxmox_host: localhost
-proxmox_user: root@pam
-proxmox_password: secret
+proxmox_api_host: localhost
+proxmox_api_user: root@pam
+proxmox_api_password: secret
 
 proxmox_vm_default:
   node: pve
