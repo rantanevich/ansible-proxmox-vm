@@ -75,13 +75,14 @@
 #   1.1 Proxmox limits count of SCSI buses (max 30).
 #   1.2 If you don't add new VM in the end, Proxmox will try to attach existing disk to other bus.
 # 2. If I use a subelements module with loop I get a shared sequence of numbers for entire loop.
+# 3. proxmox_kvm module has virtio parameter but it allows to set up only storage, size and format.
+#    and you have to number every hard disk. 
 - name: create additional volumes
   shell: >
     {% for volume in item.volumes %}
     /usr/sbin/pvesm
     alloc {{ volume.storage }} {{ item.vmid }}
-    'vm-{{ item.vmid }}-disk-{{ loop.index }}'
-    {{ volume.size }}
+    'vm-{{ item.vmid }}-disk-{{ loop.index }}' {{ volume.size }}
     {% if volume.format is defined %}--format {{ volume.format }}{% endif %}
     ;{% endfor %}
   loop: "{{ proxmox_vms }}"
@@ -101,7 +102,7 @@
     /usr/sbin/qm
     set {{ item.vmid }}
     --scsi{{ loop.index }}
-    {{ volume.storage }}:vm-{{ item.vmid }}-disk-{{ loop.index }}
+    {{ volume.storage }}:vm-{{ item.vmid }}-disk-{{ loop.index }},{{ (volume.params is defined) | ternary(volume.params, proxmox_volume_default) }}
     ;{% endfor %}
   changed_when: no
   loop: "{{ proxmox_vms }}"

@@ -9,3 +9,5 @@ proxmox_vm_default:
   cores: 2
   memory: 1024
   onboot: yes
+
+proxmox_volume_default: ""

@@ -13,11 +13,11 @@ Role Variables
 
 Variables for logging into Proxmox server:
 
-| Variable             | Default   | Comments                                          |
-|----------------------|-----------|---------------------------------------------------|
-| proxmox_api_host     | localhost | Specify the target host of the Proxmox VE cluster | 
-| proxmox_api_user     | root@pam  | Specify the user to authenticate with.            |
-| proxmox_api_password | secure    | Specify the password to authenticate with.        |
+| Variable             | Default   | Comments                                  |
+|----------------------|-----------|-------------------------------------------|
+| proxmox_api_host     | localhost | The target host of the Proxmox VE cluster | 
+| proxmox_api_user     | root@pam  | The user to authenticate with.            |
+| proxmox_api_password | secure    | The password to authenticate with.        |
 
 In example below listed all variables for setting VMs:
 
@@ -36,6 +36,7 @@ In example below listed all variables for setting VMs:
           - storage: local-lvm
             format: raw
             size: 1000G
+            params: "ssd=1,discard=on,iothread=1"
         # cloud-init settings
         user: ansible
         password: <plaintext>
@@ -61,11 +62,15 @@ More detailed:
 
 Volumes are created and attached to buses in the same order (start from 1).
 
-| Variable | Required  | Default              | Comments                                                                                     |
-|----------|-----------|----------------------|----------------------------------------------------------------------------------------------|
-| storage  | yes       | none                 | The storage identifier.                                                                      |
-| size     | yes       | none                 | Size in kilobyte (1024 bytes). Optional suffixes M (megabyte, 1024K) and G (gigabyte, 1024M) |
-| format   | no        | specified by storage | Format of disk image                                                                         |
+If you need to specify the same advaced parameters for all VM you can use `proxmox_volume_default` variable.
+For example, `proxmox_volume_default: "ssd=1,discard=on,iothread=1"`.
+
+| Variable | Required  | Default              | Example          | Comments                                                                                                                                                                     |
+|----------|-----------|----------------------|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| storage  | yes       | none                 | local-lvm        | The storage identifier.                                                                                                                                                      |
+| size     | yes       | none                 | 200G             | Size in kilobyte (1024 bytes). Optional suffixes M (megabyte, 1024K) and G (gigabyte, 1024M)                                                                                 |
+| format   | no        | specified by storage | raw              | Format of disk image                                                                                                                                                         |
+| params   | no        | none                 | ssd=1,discard=on | Advanced parameters of the hard drive. [Details](https://pve.proxmox.com/wiki/Qemu/KVM_Virtual_Machines#_managing_virtual_machines_with_tt_span_class_monospaced_qm_span_tt) |
 
 Cloud Init settings:
 
@@ -111,8 +116,8 @@ Example Playbook
             onboot: yes
             volumes:
               - storage: local-lvm
-                format: raw
                 size: 10G
+                params: "ssd=1,discard=on,iothread=1"
               - storage: remote
                 format: qcow2
                 size: 50G
