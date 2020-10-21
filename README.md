@@ -24,6 +24,7 @@ In example below listed all variables for setting VMs:
     proxmox_vms:
       - name: app-1.example.com
         node: pve
+        template: centos-7-template
         vmid: 100
         sockets: 1
         cores: 4
@@ -54,6 +55,7 @@ More detailed:
 |----------|-----------|---------|----------------------------------------------------------|
 | name     | yes       | none    | Specifies the name of the VM                             |
 | node     | yes       | pve     | Specifies Proxmox node, where the new VM will be created |
+| template | yes       | none    | Specifies VM for cloning                                 |
 | vmid     | yes       | none    | Specifies the VM ID. It must be unique                   |
 | sockets  | no        | 1       | Sets the number of CPU sockets (1-N)                     |
 | cores    | no        | 2       | Specifies number of cores per socket                     |
@@ -110,6 +112,7 @@ Example Playbook
           app-1.example.com:
             node: pve
             vmid: 100
+            template: centos-7-template
             sockets: 1
             cores: 4
             memory: 4096
@@ -133,6 +136,7 @@ Example Playbook
           # minimum options
           app-2.example.com:
             vmid: 101
+            template: centos-7-template
 
       roles:
          - geerlingguy.pip
