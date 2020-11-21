@@ -76,7 +76,7 @@
 #   1.2 If you don't add new VM in the end, Proxmox will try to attach existing disk to other bus.
 # 2. If I use a subelements module with loop I get a shared sequence of numbers for entire loop.
 # 3. proxmox_kvm module has virtio parameter but it allows to set up only storage, size and format.
-#    and you have to number every hard disk. 
+#    and you have to number every hard disk.
 - name: create additional volumes
   shell: >
     {% for volume in item.volumes %}

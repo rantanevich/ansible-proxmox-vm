@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: proxmox-vm
+  role_name: proxmox_vm
   author: Raman Antanevich
   description: Creates virtual machines from template (cloud-init image)
   company: none

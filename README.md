@@ -15,7 +15,7 @@ Variables for logging into Proxmox server:
 
 | Variable             | Default   | Comments                                  |
 |----------------------|-----------|-------------------------------------------|
-| proxmox_api_host     | localhost | The target host of the Proxmox VE cluster | 
+| proxmox_api_host     | localhost | The target host of the Proxmox VE cluster |
 | proxmox_api_user     | root@pam  | The user to authenticate with.            |
 | proxmox_api_password | secure    | The password to authenticate with.        |
 
@@ -51,16 +51,19 @@ In example below listed all variables for setting VMs:
 
 More detailed:
 
-| Variable | Required  | Default | Comments                                                 |
-|----------|-----------|---------|----------------------------------------------------------|
-| name     | yes       | none    | Specifies the name of the VM                             |
-| node     | yes       | pve     | Specifies Proxmox node, where the new VM will be created |
-| template | yes       | none    | Specifies VM for cloning                                 |
-| vmid     | yes       | none    | Specifies the VM ID. It must be unique                   |
-| sockets  | no        | 1       | Sets the number of CPU sockets (1-N)                     |
-| cores    | no        | 2       | Specifies number of cores per socket                     |
-| memory   | no        | 1024    | Specifies memory size in MB for instance                 |
-| onboot   | no        | yes     | Specifies if a VM will be started during system bootup   |
+| Variable    | Required  | Default | Comments                                                     |
+|-------------|-----------|---------|--------------------------------------------------------------|
+| name        | yes       | none    | Specifies the name of the VM                                 |
+| node        | yes       | pve     | Specifies Proxmox node, where the new VM will be created     |
+| template    | yes       | none    | Specifies VM for cloning                                     |
+| vmid        | yes       | none    | Specifies the VM ID. It must be unique                       |
+| sockets     | no        | 1       | Sets the number of CPU sockets (1-N)                         |
+| cores       | no        | 2       | Specifies number of cores per socket                         |
+| memory      | no        | 1024    | Specifies memory size in MB for instance                     |
+| onboot      | no        | yes     | Specifies if a VM will be started during system bootup       |
+| agent       | no        | yes     | Specifies if the QEMU Guest Agent should be enabled/disabled |
+| balloon     | no        | 0       | Specify the amount of RAM for the VM in MB                   |
+| description | no        | none    | Specify the description for the VM                           |
 
 Volumes are created and attached to buses in the same order (start from 1).
 
@@ -105,7 +108,7 @@ Example Playbook
         pip_install_packages:
           - name: proxmoxer
         proxmox_api_host: <dns or ip address of proxmox server>
-        proxmox_api_user: root@pam 
+        proxmox_api_user: root@pam
         proxmox_api_password: <plaintext password>
         proxmox_vms:
           # all options
@@ -117,6 +120,9 @@ Example Playbook
             cores: 4
             memory: 4096
             onboot: yes
+            agent: yes
+            balloon: 2048
+            description: It was cloned from centos-7-template
             volumes:
               - storage: local-lvm
                 size: 10G

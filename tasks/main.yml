@@ -22,6 +22,9 @@
     cores: "{{ item.cores | default(proxmox_vm_default.cores) }}"
     memory: "{{ item.memory | default(proxmox_vm_default.memory) }}"
     onboot: "{{ item.onboot | default(proxmox_vm_default.onboot) }}"
+    agent: "{{ item.agent | default(proxmox_vm_default.agent) }}"
+    balloon: "{{ item.balloon | default(proxmox_vm_default.balloon) }}"
+    description: "{{ item.description | default(omit) }}"
     update: yes
   loop: "{{ proxmox_vms }}"
   changed_when: no
@@ -35,7 +38,7 @@
     - item.vmid
     - item.ssh_key is defined
 
-- name: configure cloudinit parameters
+- name: configure cloud-init parameters
   include_tasks: cloud_init.yml
 
 - name: start virtual machines

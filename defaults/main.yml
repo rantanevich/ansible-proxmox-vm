@@ -9,5 +9,7 @@ proxmox_vm_default:
   cores: 2
   memory: 1024
   onboot: yes
+  agent: yes
+  balloon: 0
 
 proxmox_volume_default: ""
