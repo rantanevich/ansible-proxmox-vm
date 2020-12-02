@@ -1,3 +1,8 @@
+# Deprecated
+
+added cloud-init support to [proxmox_kvm module](https://github.com/ansible-collections/community.general/releases/tag/1.3.0) in release 1.3.0
+
+
 Ansible Role: Proxmox VM
 =========
 
